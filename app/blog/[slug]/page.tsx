@@ -66,137 +66,27 @@ async function getAllPosts() {
   }
 }
 
-// 임시 데이터
-const postsTemp = [
-  {
-    id: 1,
-    title: "2년차 개발자의 이직Log",
-    slug: "job-change-log",
-    date: "2023-03-15",
-    category: "커리어",
-    content: `
-# 2년차 개발자의 이직 로그
-
-안녕하세요, 저는 2년차 프론트엔드 개발자입니다. 최근에 이직을 완료했고, 그 과정에서 배운 점과 경험을 공유하고자 합니다.
-
-## 이직을 결심한 이유
-
-첫 회사에서 2년간 일하면서 많은 것을 배웠지만, 다음과 같은 이유로 이직을 결심했습니다:
-
-1. 기술 스택의 한계
-2. 성장 가능성의 제한
-3. 새로운 도전에 대한 갈망
-
-## 준비 과정
-
-### 1. 포트폴리오 정비
-
-이력서와 포트폴리오를 정비하는 데 약 2주가 소요되었습니다. 주요 프로젝트와 기여한 부분을 명확히 정리했습니다.
-
-### 2. 기술 면접 준비
-
-- JavaScript 핵심 개념 복습
-- React와 관련 라이브러리 심화 학습
-- CS 기초 지식 보강
-- 알고리즘 문제 풀이
-
-### 3. 지원 과정
-
-총 8개 회사에 지원하여 다음과 같은 결과를 얻었습니다:
-
-- 서류 탈락: 2곳
-- 1차 면접 탈락: 3곳
-- 최종 합격: 3곳
-
-## 면접에서 자주 받은 질문
-
-1. 클로저(Closure)란 무엇인가요?
-2. React의 가상 DOM이 실제 DOM보다 빠른 이유는 무엇인가요?
-3. 최근에 가장 어려웠던 기술적 문제와 해결 방법은?
-4. 협업 과정에서 갈등이 있었던 경험과 해결 방법은?
-
-## 최종 선택 기준
-
-1. 기술 스택의 현대성
-2. 성장 가능성
-3. 회사 문화
-4. 보상 체계
-
-## 느낀 점
-
-이직 과정은 쉽지 않았지만, 자신을 돌아보고 성장할 수 있는 좋은 기회였습니다. 준비 과정에서 많은 공부를 하게 되어 기술적으로도 한 단계 성장할 수 있었습니다.
-
-여러분도 이직을 고민하고 계신다면, 충분한 준비와 자신감을 가지고 도전해보세요. 새로운 환경에서의 도전은 더 큰 성장을 가져올 것입니다.
-    `
-  },
-  {
-    id: 4,
-    title: "2025년 1분기 회고",
-    slug: "2025-q1-retrospective",
-    date: "2025-04-01",
-    category: "회고",
-    content: `
-# 2025년 1분기 회고
-
-2025년의 첫 3개월을 보내며 개인적인 성장과 프로젝트에 대한 회고를 작성합니다.
-
-## 주요 성과
-
-1. Next.js 프로젝트 2개 완료
-2. 오픈 소스 프로젝트에 5개의 PR 기여
-3. 기술 블로그 글 10편 작성
-
-## 배운 점
-
-이번 분기에는 특히 다음과 같은 기술과 개념을 깊이 있게 학습했습니다:
-
-- Server Components 아키텍처
-- 타입스크립트 고급 기법
-- 마이크로 프론트엔드 아키텍처
-
-## 아쉬운 점
-
-1. 건강 관리에 소홀했던 점
-2. 독서 목표를 달성하지 못한 점
-3. 일부 프로젝트의 일정 지연
-
-## 다음 분기 목표
-
-1. 주 3회 이상 운동하기
-2. 월 2권 이상 책 읽기
-3. WebAssembly 학습하기
-4. 사이드 프로젝트 하나 완성하기
-
-이번 분기는 전반적으로 만족스러운 성과를 거두었지만, 일과 삶의 균형에 좀 더 신경 써야겠다는 생각이 듭니다. 다음 분기에는 더 체계적인 계획과 실행으로 더 나은 결과를 만들어내고 싶습니다.
-    `
-  }
-];
-
 // 모든 가능한 경로를 미리 생성
 export async function generateStaticParams() {
   const posts = await getAllPosts();
-  const tempSlugs = postsTemp.map(post => ({ slug: post.slug }));
   
-  const savedSlugs = posts.map(post => ({
+  return posts.map(post => ({
     slug: post.slug,
   }));
-  
-  return [...savedSlugs, ...tempSlugs];
 }
 
 export default async function PostPage({ params }: { params: { slug: string } }) {
-  const decodedSlug = decodeSlug(params.slug);
+  // params는 이미 준비된 객체이므로 await가 필요하지 않지만,
+  // 경고를 해결하기 위해 다음과 같이 구조 분해 할당으로 변경
+  const { slug } = params;
+  const decodedSlug = decodeSlug(slug);
   console.log('현재 접근 중인 슬러그:', decodedSlug);
   
   // 실제 저장된 포스트 찾기
-  const savedPost = await getPost(decodedSlug);
+  const post = await getPost(decodedSlug);
   
   // 모든 포스트 가져오기 (관련 글용)
-  const allSavedPosts = await getAllPosts();
-  
-  // 저장된 포스트가 있으면 사용, 없으면 임시 데이터에서 찾기
-  const post = savedPost || postsTemp.find(post => post.slug === decodedSlug);
-  const allPosts = allSavedPosts.length > 0 ? allSavedPosts : postsTemp;
+  const allPosts = await getAllPosts();
   
   if (!post) {
     console.log(`포스트를 찾을 수 없음: ${decodedSlug}`);
@@ -204,70 +94,132 @@ export default async function PostPage({ params }: { params: { slug: string } })
   }
   
   return (
-    <div className="max-w-3xl mx-auto">
-      {/* 글 헤더 */}
-      <header className="mb-8">
-        <div className="mb-4">
-          <Link 
-            href="/blog" 
-            className="text-blue-600 dark:text-blue-500 hover:underline mb-4 inline-block"
-          >
-            ← 블로그 목록으로
-          </Link>
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      {/* 이미지 헤더 */}
+      <div className="w-full h-64 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl mb-8 relative overflow-hidden flex items-center justify-center">
+        <div className="absolute inset-0 opacity-10">
+          {/* 배경 패턴 효과 */}
+          <div className="absolute inset-0 bg-white opacity-20" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' viewBox=\'0 0 40 40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h20v20H0V0zm10 17.5a7.5 7.5 0 1 0 0-15 7.5 7.5 0 0 0 0 15zM20 20h20v20H20V20zm10 17.5a7.5 7.5 0 1 0 0-15 7.5 7.5 0 0 0 0 15z\' fill=\'%23000000\' fill-opacity=\'0.4\' fill-rule=\'evenodd\'/%3E%3C/svg%3E")' }}></div>
         </div>
-        <h1 className="text-3xl md:text-4xl font-bold mb-4">{post.title}</h1>
-        <div className="flex items-center gap-4 text-gray-600 dark:text-gray-400 mb-4">
-          <time>{post.date}</time>
-          <span className="inline-block px-3 py-1 text-xs rounded-full bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200">
+        <div className="text-center z-10">
+          <span className="inline-block bg-white text-blue-600 px-3 py-1 rounded-full text-sm font-medium mb-4">
             {post.category}
           </span>
-        </div>
-      </header>
-      
-      {/* 글 내용 */}
-      <article className="prose prose-lg dark:prose-invert max-w-none">
-        <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-          {post.content}
-        </ReactMarkdown>
-      </article>
-      
-      {/* 공유 및 태그 */}
-      <div className="mt-12 pt-6 border-t border-gray-200 dark:border-gray-800">
-        <div className="flex flex-wrap gap-2 mb-6">
-          <span className="text-gray-700 dark:text-gray-300">태그:</span>
-          <button className="px-2 py-1 text-sm rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700">
-            {post.category}
-          </button>
-        </div>
-        
-        <div className="flex gap-2">
-          <span className="text-gray-700 dark:text-gray-300">공유:</span>
-          <button className="text-blue-600 dark:text-blue-500 hover:underline">Twitter</button>
-          <button className="text-blue-600 dark:text-blue-500 hover:underline">Facebook</button>
-          <button className="text-blue-600 dark:text-blue-500 hover:underline">LinkedIn</button>
+          <h1 className="text-3xl md:text-4xl font-bold text-white px-4 max-w-3xl">
+            {post.title}
+          </h1>
         </div>
       </div>
       
-      {/* 관련 글 */}
-      <div className="mt-12">
-        <h3 className="text-xl font-bold mb-6">관련 글</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {allPosts
-            .filter(p => p.slug !== decodedSlug)
-            .slice(0, 2)
-            .map((relatedPost, index) => (
-              <Link key={relatedPost.slug || index} href={`/blog/${relatedPost.slug}`}>
-                <div className="border border-gray-200 dark:border-gray-800 rounded-lg p-4 hover:shadow-md transition">
-                  <h4 className="font-semibold mb-2">{relatedPost.title}</h4>
-                  <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                    <time>{relatedPost.date}</time>
-                    <span className="mx-2">•</span>
-                    <span>{relatedPost.category}</span>
-                  </div>
-                </div>
+      <div className="flex flex-col md:flex-row gap-8">
+        <main className="flex-1">
+          {/* 글 헤더 */}
+          <header className="mb-8">
+            <div className="mb-6">
+              <Link 
+                href="/blog" 
+                className="text-blue-600 hover:underline mb-4 inline-flex items-center gap-1 text-sm font-medium"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                블로그 목록으로
               </Link>
-            ))}
-        </div>
+            </div>
+            
+            <div className="flex items-center gap-4 text-gray-600 mb-8">
+              <time className="text-sm">{post.date}</time>
+            </div>
+          </header>
+          
+          {/* 글 내용 */}
+          <article className="prose prose-lg max-w-none prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-blue-600 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:before:content-none prose-code:after:content-none prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-img:rounded-md">
+            <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+              {post.content}
+            </ReactMarkdown>
+          </article>
+          
+          {/* 공유 및 태그 */}
+          <div className="mt-12 pt-6 border-t border-gray-200">
+            <div className="flex flex-wrap gap-2 mb-6">
+              <span className="text-gray-700 font-medium">태그:</span>
+              <span className="px-3 py-1 text-sm rounded-full bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer">
+                {post.category}
+              </span>
+            </div>
+            
+            <div className="flex gap-4 items-center">
+              <span className="text-gray-700 font-medium">공유:</span>
+              <div className="flex gap-2">
+                <button className="text-gray-600 hover:text-blue-500 transition-colors w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path>
+                  </svg>
+                </button>
+                <button className="text-gray-600 hover:text-blue-700 transition-colors w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"></path>
+                  </svg>
+                </button>
+                <button className="text-gray-600 hover:text-blue-600 transition-colors w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </main>
+        
+        <aside className="w-full md:w-64 flex-shrink-0">
+          <div className="sticky top-8">
+            <div className="bg-gray-50 rounded-lg p-6 mb-6">
+              <h3 className="text-lg font-bold mb-4">목차</h3>
+              <ul className="space-y-2 text-sm">
+                {post.content?.match(/#{1,3} (.*)/g)?.map((heading: string, index: number) => {
+                  const level = heading.match(/^#+/)?.[0].length || 1;
+                  const text = heading.replace(/^#+\s+/, '');
+                  return (
+                    <li key={index} className={`${level === 1 ? '' : level === 2 ? 'ml-3' : 'ml-6'}`}>
+                      <a href={`#${text.toLowerCase().replace(/\s+/g, '-')}`} className="hover:text-blue-600 transition-colors">
+                        {text}
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+            
+            {/* 관련 글 */}
+            {allPosts.length > 1 && (
+              <div className="bg-gray-50 rounded-lg p-6">
+                <h3 className="text-lg font-bold mb-4">관련 글</h3>
+                <div className="space-y-4">
+                  {allPosts
+                    .filter(p => p.slug !== decodedSlug)
+                    .slice(0, 3)
+                    .map((relatedPost, index) => (
+                      <div key={`${relatedPost.slug}-${index}`} className="group">
+                        <Link href={`/blog/${relatedPost.slug}`} className="block">
+                          <div className="flex items-start gap-3">
+                            <div className="w-12 h-12 bg-gray-200 rounded-md flex-shrink-0 flex items-center justify-center text-xs text-gray-500">
+                              {relatedPost.category[0]}
+                            </div>
+                            <div>
+                              <h4 className="text-sm font-medium mb-1 group-hover:text-blue-600 transition-colors line-clamp-2">
+                                {relatedPost.title}
+                              </h4>
+                              <time className="text-xs text-gray-500">{relatedPost.date}</time>
+                            </div>
+                          </div>
+                        </Link>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </aside>
       </div>
     </div>
   );
