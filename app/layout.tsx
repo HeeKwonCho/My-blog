@@ -26,12 +26,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" suppressHydrationWarning>
+    <html lang="ko" suppressHydrationWarning className="dark">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
         >
           <div className="flex flex-col min-h-screen">

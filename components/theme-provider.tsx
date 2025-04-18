@@ -18,7 +18,7 @@ type ThemeProviderState = {
 };
 
 const initialState: ThemeProviderState = {
-  theme: "system",
+  theme: "dark",
   setTheme: () => null,
 };
 
@@ -26,7 +26,7 @@ const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 
 export function ThemeProvider({
   children,
-  defaultTheme = "system",
+  defaultTheme = "dark",
   storageKey = "theme",
   enableSystem = true,
   ...props
@@ -37,6 +37,10 @@ export function ThemeProvider({
     const savedTheme = localStorage.getItem(storageKey);
     if (savedTheme && (savedTheme === "dark" || savedTheme === "light" || savedTheme === "system")) {
       setTheme(savedTheme as Theme);
+    } else {
+      // 저장된 테마가 없으면 기본값을 dark로 설정
+      setTheme("dark");
+      localStorage.setItem(storageKey, "dark");
     }
   }, [storageKey]);
 

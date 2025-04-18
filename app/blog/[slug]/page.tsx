@@ -95,17 +95,13 @@ export default async function PostPage({ params }: { params: { slug: string } })
   
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      {/* 이미지 헤더 */}
-      <div className="w-full h-64 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl mb-8 relative overflow-hidden flex items-center justify-center">
-        <div className="absolute inset-0 opacity-10">
-          {/* 배경 패턴 효과 */}
-          <div className="absolute inset-0 bg-white opacity-20" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' viewBox=\'0 0 40 40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h20v20H0V0zm10 17.5a7.5 7.5 0 1 0 0-15 7.5 7.5 0 0 0 0 15zM20 20h20v20H20V20zm10 17.5a7.5 7.5 0 1 0 0-15 7.5 7.5 0 0 0 0 15z\' fill=\'%23000000\' fill-opacity=\'0.4\' fill-rule=\'evenodd\'/%3E%3C/svg%3E")' }}></div>
-        </div>
-        <div className="text-center z-10">
-          <span className="inline-block bg-white text-blue-600 px-3 py-1 rounded-full text-sm font-medium mb-4">
+      {/* 이미지 헤더 - 단순한 헤더로 변경 */}
+      <div className="mb-8">
+        <div className="text-center">
+          <span className="inline-block text-blue-600 px-3 py-1 text-sm font-medium mb-4">
             {post.category}
           </span>
-          <h1 className="text-3xl md:text-4xl font-bold text-white px-4 max-w-3xl">
+          <h1 className="text-3xl md:text-4xl font-bold px-4 max-w-3xl mx-auto">
             {post.title}
           </h1>
         </div>
@@ -139,11 +135,11 @@ export default async function PostPage({ params }: { params: { slug: string } })
             </ReactMarkdown>
           </article>
           
-          {/* 공유 및 태그 */}
+          {/* 공유 및 태그 - 배경색 제거 */}
           <div className="mt-12 pt-6 border-t border-gray-200">
             <div className="flex flex-wrap gap-2 mb-6">
               <span className="text-gray-700 font-medium">태그:</span>
-              <span className="px-3 py-1 text-sm rounded-full bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer">
+              <span className="px-3 py-1 text-sm rounded-full text-blue-600 hover:underline transition-colors cursor-pointer">
                 {post.category}
               </span>
             </div>
@@ -151,17 +147,17 @@ export default async function PostPage({ params }: { params: { slug: string } })
             <div className="flex gap-4 items-center">
               <span className="text-gray-700 font-medium">공유:</span>
               <div className="flex gap-2">
-                <button className="text-gray-600 hover:text-blue-500 transition-colors w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200">
+                <button className="text-gray-600 hover:text-blue-500 transition-colors w-8 h-8 flex items-center justify-center rounded-full">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path>
                   </svg>
                 </button>
-                <button className="text-gray-600 hover:text-blue-700 transition-colors w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200">
+                <button className="text-gray-600 hover:text-blue-700 transition-colors w-8 h-8 flex items-center justify-center rounded-full">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"></path>
                   </svg>
                 </button>
-                <button className="text-gray-600 hover:text-blue-600 transition-colors w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200">
+                <button className="text-gray-600 hover:text-blue-600 transition-colors w-8 h-8 flex items-center justify-center rounded-full">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z"></path>
                   </svg>
@@ -173,7 +169,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
         
         <aside className="w-full md:w-64 flex-shrink-0">
           <div className="sticky top-8">
-            <div className="bg-gray-50 rounded-lg p-6 mb-6">
+            <div className="rounded-lg p-6 mb-6 border border-gray-200">
               <h3 className="text-lg font-bold mb-4">목차</h3>
               <ul className="space-y-2 text-sm">
                 {post.content?.match(/#{1,3} (.*)/g)?.map((heading: string, index: number) => {
@@ -192,7 +188,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
             
             {/* 관련 글 */}
             {allPosts.length > 1 && (
-              <div className="bg-gray-50 rounded-lg p-6">
+              <div className="rounded-lg p-6 border border-gray-200">
                 <h3 className="text-lg font-bold mb-4">관련 글</h3>
                 <div className="space-y-4">
                   {allPosts

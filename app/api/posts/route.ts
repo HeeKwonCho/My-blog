@@ -1,26 +1,17 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { createPostsTable, getAllPosts, addPost } from '@/lib/db';
 
-// 데이터 저장 경로 설정
-const dataDirectory = path.join(process.cwd(), 'data');
-const postsDirectory = path.join(dataDirectory, 'posts');
-
-// 디렉토리가 없으면 생성
-if (!fs.existsSync(dataDirectory)) {
-  fs.mkdirSync(dataDirectory);
-}
-
-if (!fs.existsSync(postsDirectory)) {
-  fs.mkdirSync(postsDirectory);
-}
+// 서버 시작시 posts 테이블 생성
+createPostsTable().catch(error => {
+  console.error('테이블 생성 실패:', error);
+});
 
 export async function POST(request: Request) {
   try {
-    const post = await request.json();
+    const postData = await request.json();
     
     // 필수 필드 검증
-    if (!post.title || !post.slug || !post.content || !post.category) {
+    if (!postData.title || !postData.slug || !postData.content || !postData.category) {
       return NextResponse.json(
         { error: '모든 필드를 입력해주세요.' },
         { status: 400 }
@@ -28,22 +19,23 @@ export async function POST(request: Request) {
     }
     
     // 파일명에 사용할 형식의 날짜 생성
-    const date = post.date || new Date().toISOString().split('T')[0];
+    const date = postData.date || new Date().toISOString().split('T')[0];
     
     // 포스트 데이터 구성
-    const postData = {
-      title: post.title,
-      slug: post.slug,
+    const post = {
+      title: postData.title,
+      slug: postData.slug,
+      excerpt: postData.excerpt || '',
+      content: postData.content,
       date,
-      category: post.category,
-      content: post.content,
+      category: postData.category,
+      image_url: postData.imageUrl || null
     };
     
-    // JSON 파일로 저장
-    const filePath = path.join(postsDirectory, `${post.slug}.json`);
-    fs.writeFileSync(filePath, JSON.stringify(postData, null, 2), 'utf8');
+    // 데이터베이스에 저장
+    const savedPost = await addPost(post);
     
-    return NextResponse.json({ success: true, post: postData });
+    return NextResponse.json({ success: true, post: savedPost });
   } catch (error) {
     console.error('포스트 저장 오류:', error);
     return NextResponse.json(
@@ -55,21 +47,8 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
-    // 디렉토리가 없으면 빈 배열 반환
-    if (!fs.existsSync(postsDirectory)) {
-      return NextResponse.json([]);
-    }
-    
-    // 모든 JSON 파일을 읽어 포스트 목록 생성
-    const files = fs.readdirSync(postsDirectory);
-    const posts = files
-      .filter(file => file.endsWith('.json'))
-      .map(file => {
-        const filePath = path.join(postsDirectory, file);
-        const fileContent = fs.readFileSync(filePath, 'utf8');
-        return JSON.parse(fileContent);
-      })
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    // 데이터베이스에서 모든 포스트 가져오기
+    const posts = await getAllPosts();
     
     return NextResponse.json(posts);
   } catch (error) {

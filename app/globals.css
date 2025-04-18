@@ -5,14 +5,70 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --foreground-muted: rgba(23, 23, 23, 0.2);
 }
 
 .dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  --background: #121212;
+  --foreground: #f5f5f5;
+  --foreground-muted: rgba(245, 245, 245, 0.2);
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
+}
+
+/* TipTap 에디터 스타일 */
+.ProseMirror {
+  padding: 0.75rem;
+  outline: none;
+  min-height: 300px;
+  cursor: text;
+  background: transparent;
+  border: 1px solid var(--foreground-muted);
+  border-radius: 0.25rem;
+}
+
+.ProseMirror p {
+  margin: 0.25rem 0;
+  line-height: 1.5;
+}
+
+/* 단락 사이 간격 줄이기 */
+.ProseMirror p + p {
+  margin-top: 0.25rem;
+}
+
+/* 클릭했을 때 커서 표시 개선 */
+.ProseMirror-focused {
+  outline: none;
+}
+
+/* 에디터 영역에 호버 효과 */
+.ProseMirror:hover {
+  background-color: transparent;
+  border-color: var(--foreground-muted);
+}
+
+/* 이미지 스타일링 */
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  margin: 0.5rem 0;
+  border-radius: 0.25rem;
+}
+
+/* 단락이 비어있을 때도 높이 유지 */
+.ProseMirror p.is-empty::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #adb5bd;
+  pointer-events: none;
+  height: 0;
+}
+
+/* 선택된 텍스트 스타일 */
+.ProseMirror-selectednode {
+  outline: 2px solid #68cef8;
 }

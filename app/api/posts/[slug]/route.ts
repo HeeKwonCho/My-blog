@@ -1,19 +1,5 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
-
-// 데이터 저장 경로 설정
-const dataDirectory = path.join(process.cwd(), 'data');
-const postsDirectory = path.join(dataDirectory, 'posts');
-
-// 디렉토리가 없으면 생성
-if (!fs.existsSync(dataDirectory)) {
-  fs.mkdirSync(dataDirectory);
-}
-
-if (!fs.existsSync(postsDirectory)) {
-  fs.mkdirSync(postsDirectory);
-}
+import { getPostBySlug, updatePost, deletePost } from '@/lib/db';
 
 // GET - 특정 포스트 조회
 export async function GET(
@@ -22,19 +8,17 @@ export async function GET(
 ) {
   try {
     const slug = params.slug;
-    const filePath = path.join(postsDirectory, `${slug}.json`);
     
-    // 파일이 존재하지 않으면 404 반환
-    if (!fs.existsSync(filePath)) {
+    // 데이터베이스에서 포스트 조회
+    const post = await getPostBySlug(slug);
+    
+    // 포스트가 없으면 404 반환
+    if (!post) {
       return NextResponse.json(
         { error: '포스트를 찾을 수 없습니다.' },
         { status: 404 }
       );
     }
-    
-    // 파일 내용 읽기
-    const fileContent = fs.readFileSync(filePath, 'utf8');
-    const post = JSON.parse(fileContent);
     
     return NextResponse.json(post);
   } catch (error) {
@@ -53,10 +37,12 @@ export async function PUT(
 ) {
   try {
     const slug = params.slug;
-    const filePath = path.join(postsDirectory, `${slug}.json`);
     
-    // 파일이 존재하지 않으면 404 반환
-    if (!fs.existsSync(filePath)) {
+    // 기존 포스트 조회
+    const existingPost = await getPostBySlug(slug);
+    
+    // 포스트가 없으면 404 반환
+    if (!existingPost) {
       return NextResponse.json(
         { error: '수정할 포스트를 찾을 수 없습니다.' },
         { status: 404 }
@@ -64,37 +50,31 @@ export async function PUT(
     }
     
     // 수정할 포스트 데이터 가져오기
-    const updatedPost = await request.json();
+    const postData = await request.json();
     
     // 필수 필드 검증
-    if (!updatedPost.title || !updatedPost.content || !updatedPost.category) {
+    if (!postData.title || !postData.content || !postData.category) {
       return NextResponse.json(
         { error: '모든 필드를 입력해주세요.' },
         { status: 400 }
       );
     }
     
-    // 슬러그가 일치하는지 확인
-    if (updatedPost.slug !== slug) {
-      return NextResponse.json(
-        { error: '슬러그를 변경할 수 없습니다.' },
-        { status: 400 }
-      );
-    }
-    
     // 포스트 데이터 구성
-    const postData = {
-      title: updatedPost.title,
-      slug: updatedPost.slug,
-      date: updatedPost.date,
-      category: updatedPost.category,
-      content: updatedPost.content,
+    const post = {
+      title: postData.title,
+      slug: postData.slug || slug,
+      excerpt: postData.excerpt || '',
+      content: postData.content,
+      date: postData.date || new Date().toISOString().split('T')[0],
+      category: postData.category,
+      image_url: postData.imageUrl || null
     };
     
-    // JSON 파일로 저장
-    fs.writeFileSync(filePath, JSON.stringify(postData, null, 2), 'utf8');
+    // 데이터베이스에 업데이트
+    const updatedPost = await updatePost(existingPost.id, post);
     
-    return NextResponse.json({ success: true, post: postData });
+    return NextResponse.json({ success: true, post: updatedPost });
   } catch (error) {
     console.error('포스트 수정 오류:', error);
     return NextResponse.json(
@@ -111,18 +91,17 @@ export async function DELETE(
 ) {
   try {
     const slug = params.slug;
-    const filePath = path.join(postsDirectory, `${slug}.json`);
     
-    // 파일이 존재하지 않으면 404 반환
-    if (!fs.existsSync(filePath)) {
+    // 데이터베이스에서 포스트 삭제
+    const deletedPost = await deletePost(slug);
+    
+    // 포스트가 없으면 404 반환
+    if (!deletedPost) {
       return NextResponse.json(
         { error: '삭제할 포스트를 찾을 수 없습니다.' },
         { status: 404 }
       );
     }
-    
-    // 파일 삭제
-    fs.unlinkSync(filePath);
     
     return NextResponse.json({ success: true, message: '포스트가 삭제되었습니다.' });
   } catch (error) {
